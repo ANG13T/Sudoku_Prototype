@@ -3,6 +3,7 @@
     For more information, please see https://github.com/robatron/sudoku.js
 */
 
+
 // Selectors
 var BOARD_SEL = "#sudoku-board";
 var TABS_SEL = "#generator-tabs";
@@ -10,6 +11,15 @@ var MESSAGE_SEL = "#message";
 var PUZZLE_CONTROLS_SEL = "#puzzle-controls";
 var IMPORT_CONTROLS_SEL = "#import-controls";
 var SOLVER_CONTROLS_SEL = "#solver-controls";
+var solution;
+let time;
+let mistakes = 0;
+let timer = $('#time');
+let watch = new StopWatch(timer);
+$('#mistakes').text(`Mistakes: ${mistakes} / 3`);
+
+// Timer Stuff
+
 
 // Boards
 // TODO: Cache puzzles as strings instead of grids to cut down on conversions?
@@ -22,6 +32,7 @@ var boards = {
     "inhuman": null,
     "import": null,
 };
+
 
 var build_board = function(){
     /* Build the Sudoku board markup
@@ -82,91 +93,37 @@ var init_board = function(){
     $(BOARD_SEL + " input.square").keyup(function(){
         /* Fire a change event on keyup, enforce digits
         */
-        $(this).change();
+       let input = $(this).val();
+       let thisID = $(this).attr("id");
+       let row = parseInt(thisID[3]);
+       let col = parseInt(thisID[8]);
+       let index = (row * 9) + col;
+       let solutionPiece = parseInt(solution[index]);
+
+       if(parseInt(input)){
+        let num = parseInt(input);
+        if(num != solutionPiece){ //incorrect
+            $(this).css('color', 'red');
+            mistakes++;
+            updateMistake();
+        }else{
+            $(this).css('color', 'black');
+            //check game won
+        }
+       }
+       
     });
 
 };
 
-var init_tabs = function(){
-    /* Initialize the Sudoku generator tabs
-    */
-    $(TABS_SEL + " a").click(function(e){
-        e.preventDefault();
-        var $t = $(this);
-        var t_name = $t.attr("id");
-        
-        // Hide any error messages
-        $(MESSAGE_SEL).hide();
-        
-        // If it's the import tab
-        if(t_name === "import"){
-            $(PUZZLE_CONTROLS_SEL).hide();
-            $(IMPORT_CONTROLS_SEL).show();
-        
-        // Otherwise it's a normal difficulty tab
-        } else {
-            $(PUZZLE_CONTROLS_SEL).show();
-            $(IMPORT_CONTROLS_SEL).hide();
-        }
-        show_puzzle(t_name);
-        $t.tab('show');
-    });
-};
-
-var init_controls = function(){
-    /* Initialize the controls
-    */
-    
-    // Puzzle controls
-    $(PUZZLE_CONTROLS_SEL + " #refresh").click(function(e){
-        /* Refresh the current puzzle
-        */
-        e.preventDefault();
-        var tab_name = get_tab();
-        if(tab_name !== "import"){
-            show_puzzle(tab_name, true);
-        }
-    });
-    
-    // Import controls
-    $(IMPORT_CONTROLS_SEL + " #import-string").change(function(){
-        /* Update the board to reflect the import string
-        */
-        var import_val = $(this).val();
-        var processed_board = "";
-        for(var i = 0; i < 81; ++i){
-            if(typeof import_val[i] !== "undefined" &&
-                    (sudoku._in(import_val[i], sudoku.DIGITS) || 
-                    import_val[i] === sudoku.BLANK_CHAR)){
-                processed_board += import_val[i];
-            } else {
-                processed_board += sudoku.BLANK_CHAR;
-            }
-        }
-        boards["import"] = sudoku.board_string_to_grid(processed_board);
-        show_puzzle("import");
-    });
-    $(IMPORT_CONTROLS_SEL + " #import-string").keyup(function(){
-        /* Fire a change event on keyup, enforce digits
-        */
-        $(this).change();
-    });
-    
-    // Solver controls
-    $(SOLVER_CONTROLS_SEL + " #solve").click(function(e){
-        /* Solve the current puzzle
-        */
-        e.preventDefault();
-        solve_puzzle(get_tab());
-    });
-    
-    $(SOLVER_CONTROLS_SEL + " #get-candidates").click(function(e){
-        /* Get candidates for the current puzzle
-        */
-        e.preventDefault();
-        get_candidates(get_tab());
-    });
-};
+function updateMistake(){
+    if(mistakes >= 3){
+       watch.stop();
+       alert("Game Over");
+    }else{
+        $('#mistakes').text(`Mistakes: ${mistakes} / 3`);
+    }
+}
 
 var init_message = function(){
     /* Initialize the message bar
@@ -176,67 +133,6 @@ var init_message = function(){
     $(MESSAGE_SEL).hide();
 }
 
-var solve_puzzle = function(puzzle){
-    /* Solve the specified puzzle and show it
-    */
-    
-    // Solve only if it's a valid puzzle
-    if(typeof boards[puzzle] !== "undefined"){
-        display_puzzle(boards[puzzle], true);
-        
-        var error = false;
-        try{
-            var solved_board = 
-                sudoku.solve(sudoku.board_grid_to_string(boards[puzzle]));
-        } catch(e) {
-            error = true;
-        }
-        
-        // Display the solved puzzle if solved successfully, display error if
-        // unable to solve.
-        if(solved_board && !error){
-            display_puzzle(sudoku.board_string_to_grid(solved_board), true);
-            $(MESSAGE_SEL).hide();
-        } else {
-            $(MESSAGE_SEL + " #text")
-                .html("<strong>Unable to solve!</strong> "
-                    + "Check puzzle and try again.");
-            $(MESSAGE_SEL).show();
-        }
-    }
-};
-
-var get_candidates = function(puzzle){
-    /* Get the candidates for the specified puzzle and show it
-    */
-    
-    // Get candidates only if it's a valid puzzle
-    if(typeof boards[puzzle] !== "undefined"){
-        display_puzzle(boards[puzzle], true);
-        
-        var error = false;
-        try{
-            var candidates = 
-                sudoku.get_candidates(
-                    sudoku.board_grid_to_string(boards[puzzle])
-                );
-        } catch(e) {
-            error = true;
-        }
-        
-        // Display the candidates if solved successfully, display error if
-        // unable to solve.
-        if(candidates && !error){
-            display_puzzle(candidates, true);
-            $(MESSAGE_SEL).hide();
-        } else {
-            $(MESSAGE_SEL + " #text")
-                .html("<strong>Unable to display candidates!</strong> " +
-                    "Contradictions encountered. Check puzzle and try again.");
-            $(MESSAGE_SEL).show();
-        }
-    }
-}
 
 var show_puzzle = function(puzzle, refresh){
     /* Show the puzzle of the specified puzzle. If the board has not been
@@ -251,18 +147,11 @@ var show_puzzle = function(puzzle, refresh){
     if(typeof boards[puzzle] === "undefined"){
         puzzle = "easy";
     }
+
+    let generatedPuzzle = sudoku.generate(puzzle);
+    solution = sudoku.solve(generatedPuzzle);
     
-    // If the board at the specified puzzle doesn't exist yet, or `refresh`
-    // is set, generate a new one
-    if(boards[puzzle] === null || refresh){
-        if(puzzle === "import"){
-            boards[puzzle] = sudoku.board_string_to_grid(sudoku.BLANK_BOARD);
-        } else {
-            boards[puzzle] = 
-                sudoku.board_string_to_grid(sudoku.generate(puzzle));
-        }
-    }
-    
+    boards[puzzle] = sudoku.board_string_to_grid(generatedPuzzle);
     // Display the puzzle
     display_puzzle(boards[puzzle]);
 }
@@ -276,7 +165,9 @@ var display_puzzle = function(board, highlight){
         for(var c = 0; c < 9; ++c){
             var $square = $(BOARD_SEL + " input#row" + r + "-col" + c);
             $square.removeClass("green-text");
+            console.log(sudoku.BLANK_CHAR);
             if(board[r][c] != sudoku.BLANK_CHAR){
+
                 $square.attr("disabled", "disabled");
                 var board_val = board[r][c];
                 var square_val = $square.val();
@@ -293,31 +184,21 @@ var display_puzzle = function(board, highlight){
     }
 };
 
-var get_tab = function(){
-    /* Return the name of the currently-selected tab
-    */
-    return $(TABS_SEL + " li.active a").attr("id");
-};
 
-var click_tab = function(tab_name){
-    /* Click the specified tab by name
-    */
-    $(TABS_SEL + " #" + tab_name).click();
-};
 
 // "Main" (document ready)
 $(function(){
     build_board();
     init_board();
-    init_tabs();
-    init_controls();
     init_message();
     
     // Initialize tooltips
     $("[rel='tooltip']").tooltip();
     
     // Start with generating an easy puzzle
-    click_tab("easy");
+    let playValue = sessionStorage.getItem("playValue");
+    show_puzzle(playValue);
+    watch.start();
     
     // Hide the loading screen, show the app
     $("#app-wrap").removeClass("hidden");

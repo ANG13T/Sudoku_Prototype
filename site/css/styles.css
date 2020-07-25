@@ -48,3 +48,14 @@ body {
 .green-text {
     color: ForestGreen !important;
 }
+
+.stats{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: flex-end;
+}
+
+.stat{
+    font-weight: 200;
+    font-size: 2rem;
+}

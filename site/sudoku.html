@@ -39,48 +39,11 @@
             <!-- Masthead -->
             <h1>Sudoku.js Demo</h1>
             <br>
-            
-            <!-- Tabs -->
-            <ul id="generator-tabs" class="nav nav-tabs">
-                <li>
-                    <a id="easy" rel="tooltip" title="Generate an easy puzzle" 
-                            href="#">Easy</a>
-                </li>
-                <li>
-                    <a id="medium" rel="tooltip" 
-                            title="Generate a medium puzzle" href="#">Medium</a>
-                </li>
-                <li>
-                    <a id="hard" rel="tooltip" title="Generate a hard puzzle" 
-                            href="#">Hard</a>
-                </li>
-                <li>
-                    <a id="very-hard" rel="tooltip" 
-                            title="Generate a very hard puzzle" href="#">
-                        Very hard    
-                    </a>
-                </li>
-                <li>
-                    <a id="insane" rel="tooltip" 
-                            title="Generate an insane puzzle" href="#">
-                        Insane
-                    </a>
-                </li>
-                <li class="pull-right">
-                    <a id="import" rel="tooltip" title="Import your own puzzle" 
-                            href="#">
-                        Import...
-                    </a>
-                </li>
-            </ul>
-            
-            <div id="import-controls">
-                <input id="import-string" class="input-block-level" 
-                    placeholder="Enter a puzzle as a string of 81 digits, 1-9, and '.' as spaces."
-                    maxlength="81"
-                    type="text"/>
+            <!-- Time and Mistakes -->
+            <div class="stats">
+                <h3 class="stat" id="time">Time: </h3>
+                <h3 class="stat" id="mistakes">Mistakes: </h3>
             </div>
-            
 
             <!-- Sudoku board -->
             <table class="table table-striped">
@@ -95,19 +58,6 @@
                 <div id="text"></div>
             </div>
             
-            <!-- Solver buttons -->
-            <div id="solver-controls">
-                <button id="solve" class="btn btn-primary" rel="tooltip" 
-                        title="Solve the current puzzle!" 
-                        data-placement="bottom">
-                    Solve!
-                </button>
-                <button id="get-candidates" class="btn pull-right" rel="tooltip" 
-                        title="Show all possible values for each empty square" 
-                        data-placement="bottom">
-                    Show Candidates
-                </button>
-            </div>
             
         </div> <!-- /container -->
         
@@ -115,7 +65,8 @@
              (Placed at the bottom so the DOM loads faster) -->
         <script src="./js/jquery.min.js"></script>
         <script src="./js/bootstrap.min.js"></script>
-        <script src="../sudoku.js"></script>
-        <script src="./js/app.js"></script>
+        <script src="./js/StopWatch.js"></script>
+        <script type="text/javascript" src="../sudoku.js"></script>
+        <script type="text/javascript" src="./js/app.js"></script>
     </body>
 </html>
