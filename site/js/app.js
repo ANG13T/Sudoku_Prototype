@@ -1,6 +1,5 @@
 /* 
     Quick-n-dirty demo page for Sudoku.js.
-
     For more information, please see https://github.com/robatron/sudoku.js
 */
 
@@ -277,8 +276,8 @@ var display_puzzle = function(board, highlight){
         for(var c = 0; c < 9; ++c){
             var $square = $(BOARD_SEL + " input#row" + r + "-col" + c);
             $square.removeClass("green-text");
-            $square.attr("disabled", "disabled");
             if(board[r][c] != sudoku.BLANK_CHAR){
+                $square.attr("disabled", "disabled");
                 var board_val = board[r][c];
                 var square_val = $square.val();
                 if(highlight && board_val != square_val){
