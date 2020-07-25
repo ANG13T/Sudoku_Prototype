@@ -109,7 +109,7 @@ var init_board = function(){
         }else{
             $(this).css('color', 'black');
             if(checkWon()){
-                alert('Game won')
+                $('#gamewonModal').modal('show')
             }
         }
        }
