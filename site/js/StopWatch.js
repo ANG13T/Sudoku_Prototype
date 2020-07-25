@@ -6,7 +6,6 @@ function StopWatch(elem){
     function update(){ //adds delta onto time
         time += delta();
         var formattedTime = timeFormatter(time);
-        console.log(formattedTime);
         elem.text(formattedTime);
     }
     function delta(){

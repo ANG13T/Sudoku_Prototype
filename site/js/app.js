@@ -108,7 +108,9 @@ var init_board = function(){
             updateMistake();
         }else{
             $(this).css('color', 'black');
-            //check game won
+            if(checkWon()){
+                alert('Game won')
+            }
         }
        }
        
@@ -119,7 +121,8 @@ var init_board = function(){
 function updateMistake(){
     if(mistakes >= 3){
        watch.stop();
-       alert("Game Over");
+       $('#gameoverModal').modal('show')
+
     }else{
         $('#mistakes').text(`Mistakes: ${mistakes} / 3`);
     }
@@ -133,6 +136,25 @@ var init_message = function(){
     $(MESSAGE_SEL).hide();
 }
 
+function checkWon(){
+    let value = true;
+    $('.square').each(function(i, obj) {
+        var values = $(this).attr("id");
+        var textInside = $(this).val();
+        // console.log(values);
+        console.log(textInside);
+        if(values == ' ' || value == '') {
+            value = false;
+        }
+        let row = parseInt(values[3]);
+        let col = parseInt(values[8]);
+        let index = (row * 9) + col;
+        if(textInside != solution[row][col]) {
+            value = false;
+        }
+    });
+    return value;
+}
 
 var show_puzzle = function(puzzle, refresh){
     /* Show the puzzle of the specified puzzle. If the board has not been
